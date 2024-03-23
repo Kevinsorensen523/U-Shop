@@ -16,6 +16,7 @@ import {
   IonRouterOutlet,
   IonRow,
   IonTitle,
+  IonToggle,
   IonToolbar,
   setupIonicReact,
 } from "@ionic/react";
@@ -45,6 +46,7 @@ import "./theme/variables.css";
 import Profile from "./pages/Profile";
 import Wishlist from "./pages/Wishlist";
 import History from "./pages/History";
+import Cart from "./pages/Cart";
 
 setupIonicReact();
 
@@ -54,7 +56,7 @@ const App = () => {
       <IonReactRouter>
         <IonMenu contentId="main-content">
           <IonHeader>
-            <IonToolbar color="tertiary">
+            <IonToolbar color="primary">
               <IonMenuToggle>
                 <Link
                   to="/home"
@@ -109,6 +111,16 @@ const App = () => {
                   </IonButton>
                 </IonMenuToggle>
               </IonRow>
+              <IonRow>
+                <IonToggle
+                  checked={true}
+                  className="text-lg"
+                  labelPlacement="fixed"
+                  alignment="center"
+                >
+                  DARK THEME
+                </IonToggle>
+              </IonRow>
             </IonGrid>
           </IonContent>
         </IonMenu>
@@ -117,9 +129,9 @@ const App = () => {
             <IonButtons slot="start">
               <IonMenuButton />
             </IonButtons>
-            <IonButtons slot="end">
+            <IonButton routerLink="/cart" fill="clear" slot="end">
               <IonIcon icon={cartOutline} size="large" />
-            </IonButtons>
+            </IonButton>
             <IonTitle></IonTitle>
           </IonToolbar>
         </IonHeader>
@@ -129,6 +141,7 @@ const App = () => {
             <Route exact path="/wishlist" component={Wishlist} />
             <Route exact path="/history" component={History} />
             <Route exact path="/profile" component={Profile} />
+            <Route exact path="/cart" component={Cart} />
             <Route exact path="/">
               <Redirect to="/home" />
             </Route>
