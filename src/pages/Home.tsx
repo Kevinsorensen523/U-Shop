@@ -1,12 +1,5 @@
 import React, { useState } from "react";
-import {
-  CarouselProvider,
-  Slider,
-  Slide,
-  ButtonBack,
-  ButtonNext,
-  DotGroup,
-} from "pure-react-carousel";
+import { CarouselProvider, Slider, Slide, DotGroup } from "pure-react-carousel";
 import "pure-react-carousel/dist/react-carousel.es.css";
 import "./Home.css";
 import {
@@ -20,28 +13,35 @@ import {
   IonContent,
   IonIcon,
   IonRow,
-  IonTitle,
 } from "@ionic/react";
-import "./../App.css";
 import { star, starOutline, add } from "ionicons/icons";
 import { useDispatch } from "react-redux";
-import { AppDispatch } from "../store";
+import { RootState, AppDispatch } from "../store";
+import { addItem } from "./../components/cartSlice";
+
+interface Product {
+  id: number;
+  title: string;
+  subtitle: string;
+  image: string;
+  price: number;
+}
 
 type Favorites = Record<number, boolean>;
 
-const Home = () => {
-  const [favorites, setFavorites] = useState<Favorites>({});
-  const dispatch = useDispatch();
+const Home: React.FC = () => {
+  const [favorites, setFavorites] = useState<Record<number, boolean>>({});
+  const dispatch = useDispatch<AppDispatch>();
 
-  const toggleFavorite = (index: number) => {
-    const newFavorites = { ...favorites, [index]: !favorites[index] };
-    setFavorites(newFavorites);
-    console.log(`Produk ${index} favorit: ${newFavorites[index]}`);
+  const toggleFavorite = (productId: number) => {
+    setFavorites((currentFavorites) => ({
+      ...currentFavorites,
+      [productId]: !currentFavorites[productId],
+    }));
   };
 
-  const addToCart = (index: number) => {
-    console.log(`Produk ${index} ditambahkan ke keranjang`);
-    dispatch({ type: "cart/increment" });
+  const handleAddToCart = (product: Product) => {
+    dispatch(addItem({ ...product, quantity: 1 }));
   };
 
   const images = [
@@ -54,34 +54,46 @@ const Home = () => {
 
   const products = [
     {
+      id: 1,
       title: "Bitcoin",
       subtitle: "Rp. 100.000",
       image: "/Shop/Bitcoin.jpg",
+      price: 100000,
     },
     {
+      id: 2,
       title: "Ethereum",
       subtitle: "Rp. 50.000",
       image: "/Shop/Ethereum.jpeg",
+      price: 50000,
     },
     {
+      id: 3,
       title: "Solana",
       subtitle: "Rp. 35.000",
       image: "/Shop/Solana.jpg",
+      price: 35000,
     },
     {
+      id: 4,
       title: "Manta",
       subtitle: "Rp. 10.000",
       image: "/Shop/Manta.png",
+      price: 10000,
     },
     {
+      id: 5,
       title: "Pepe",
       subtitle: "Rp. 75.000",
       image: "/Shop/Pepe.jpg",
+      price: 75000,
     },
     {
+      id: 6,
       title: "Doge",
       subtitle: "Rp. 60.000",
       image: "/Shop/Doge.png",
+      price: 60000,
     },
   ];
 
@@ -105,34 +117,23 @@ const Home = () => {
           <DotGroup />
         </CarouselProvider>
       </div>
-      <IonRow className="lg: mt-10">
-        {products.map((product, index) => (
-          <IonCol size="12" size-md="4" key={index}>
+      <IonRow>
+        {products.map((product) => (
+          <IonCol size="12" size-md="4" key={product.id}>
             <IonCard>
               <div
                 className="card-image-container"
                 style={{ backgroundImage: `url(${product.image})` }}
               ></div>
-              <IonCardHeader className="items-center">
+              <IonCardHeader>
                 <IonCardTitle>{product.title}</IonCardTitle>
                 <IonCardSubtitle>{product.subtitle}</IonCardSubtitle>
               </IonCardHeader>
-              <IonCardContent className="ion-text-right">
-                <IonButton
-                  fill="clear"
-                  size="large"
-                  onClick={() => toggleFavorite(index)}
-                >
-                  <IonIcon
-                    icon={favorites[index] ? star : starOutline}
-                    style={{ color: favorites[index] ? "gold" : "grey" }}
-                  />
+              <IonCardContent>
+                <IonButton onClick={() => toggleFavorite(product.id)}>
+                  <IonIcon icon={favorites[product.id] ? star : starOutline} />
                 </IonButton>
-                <IonButton
-                  fill="clear"
-                  size="large"
-                  onClick={() => addToCart(index)}
-                >
+                <IonButton onClick={() => handleAddToCart(product)}>
                   <IonIcon icon={add} />
                 </IonButton>
               </IonCardContent>

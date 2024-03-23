@@ -20,6 +20,6 @@ ion-menu::part(container) {
 body.dark {
   --ion-color-primary: #428cff;
   --ion-color-secondary: #50c8ff;
-  --ion-background-color: #0cd1e8;
+  --ion-background-color: #000000;
   --ion-text-color: #ffffff;
 }
