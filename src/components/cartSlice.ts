@@ -21,7 +21,6 @@ export const cartSlice = createSlice({
   name: "cart",
   initialState,
   reducers: {
-    // Action to add an item to the cart
     addItem: (state, action: PayloadAction<CartItem>) => {
       const existingItem = state.items.find(
         (item) => item.id === action.payload.id
@@ -32,7 +31,6 @@ export const cartSlice = createSlice({
         state.items.push({ ...action.payload, quantity: 1 });
       }
     },
-    // Action to remove an item from the cart
     removeItem: (state, action: PayloadAction<number>) => {
       state.items = state.items.filter((item) => item.id !== action.payload);
     },
@@ -48,13 +46,14 @@ export const cartSlice = createSlice({
         item.quantity -= 1;
       }
     },
-    // You can add more actions here as needed
+    checkout: (state) => {
+      state.items = [];
+    },
   },
 });
 
-// Export the actions
+export const { checkout } = cartSlice.actions;
 export const { addItem, removeItem, incrementQuantity, decrementQuantity } =
   cartSlice.actions;
 
-// Export the reducer
 export default cartSlice.reducer;

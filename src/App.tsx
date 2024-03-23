@@ -35,7 +35,9 @@ setupIonicReact();
 
 const App: React.FC = () => {
   const [isDarkMode, setIsDarkMode] = useState(false);
-  const cartCount = useSelector((state: RootState) => 0);
+  const cartCount = useSelector((state: RootState) =>
+    state.cart.items.reduce((total, item) => total + item.quantity, 0)
+  );
 
   useEffect(() => {
     if (isDarkMode) {
