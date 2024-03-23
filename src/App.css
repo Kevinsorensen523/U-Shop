@@ -10,3 +10,16 @@ ion-menu::part(container) {
   border-radius: 0 20px 20px 0;
   box-shadow: 4px 0px 16px rgba(213, 209, 213, 0.18);
 }
+
+:root {
+  --ion-color-primary: #3880ff;
+  --ion-color-secondary: #0cd1e8;
+  --ion-background-color: #0cd1e8;
+}
+
+body.dark {
+  --ion-color-primary: #428cff;
+  --ion-color-secondary: #50c8ff;
+  --ion-background-color: #0cd1e8;
+  --ion-text-color: #ffffff;
+}

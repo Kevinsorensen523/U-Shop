@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link, Redirect, Route, useHistory } from "react-router-dom";
 import {
   IonApp,
@@ -47,10 +47,23 @@ import Profile from "./pages/Profile";
 import Wishlist from "./pages/Wishlist";
 import History from "./pages/History";
 import Cart from "./pages/Cart";
+import { RootState } from "./store";
+import { useSelector } from "react-redux";
 
 setupIonicReact();
 
 const App = () => {
+  const [isDarkMode, setIsDarkMode] = useState(false);
+  const cartCount = useSelector((state: RootState) => state.cart.cartCount);
+
+  useEffect(() => {
+    if (isDarkMode) {
+      document.body.classList.add("dark");
+    } else {
+      document.body.classList.remove("dark");
+    }
+  }, [isDarkMode]);
+
   return (
     <IonApp>
       <IonReactRouter>
@@ -112,14 +125,14 @@ const App = () => {
                 </IonMenuToggle>
               </IonRow>
               <IonRow>
-                <IonToggle
-                  checked={true}
-                  className="text-lg"
-                  labelPlacement="fixed"
-                  alignment="center"
-                >
-                  DARK THEME
-                </IonToggle>
+                <IonMenuToggle autoHide={false}>
+                  <IonToggle
+                    checked={isDarkMode}
+                    onIonChange={(e) => setIsDarkMode(e.detail.checked)}
+                  >
+                    Dark Mode
+                  </IonToggle>
+                </IonMenuToggle>
               </IonRow>
             </IonGrid>
           </IonContent>
@@ -131,7 +144,26 @@ const App = () => {
             </IonButtons>
             <IonButton routerLink="/cart" fill="clear" slot="end">
               <IonIcon icon={cartOutline} size="large" />
+              {cartCount > 0 && (
+                <span
+                  style={{
+                    position: "relative",
+                    background: "red",
+                    color: "white",
+                    fontWeight: "bold",
+                    borderRadius: "50%",
+                    padding: "2px 6px",
+                    fontSize: "0.75rem",
+                    top: "10px",
+                    right: "10px",
+                    transform: "translate(50%, -50%)",
+                  }}
+                >
+                  {cartCount}
+                </span>
+              )}
             </IonButton>
+
             <IonTitle></IonTitle>
           </IonToolbar>
         </IonHeader>
