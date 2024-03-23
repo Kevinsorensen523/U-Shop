@@ -1,0 +1,7 @@
+{
+  "name": "U-Shop",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "react-vite"
+}
