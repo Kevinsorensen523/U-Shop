@@ -19,10 +19,12 @@ import {
 import { trash, cart } from "ionicons/icons";
 import { addItem } from "./../components/cartSlice";
 import { Product } from "./Home";
+import { useHistory } from "react-router-dom";
 
 const Wishlist: React.FC = () => {
   const { favorites, toggleFavorite } = useFavorites();
   const dispatch = useDispatch();
+  const history = useHistory();
 
   const handleAddToCart = (product: Product) => {
     dispatch(addItem({ ...product, quantity: 1 }));
@@ -31,6 +33,10 @@ const Wishlist: React.FC = () => {
 
   const handleRemoveFromWishlist = (product: Product) => {
     toggleFavorite(product);
+  };
+
+  const navigateToHome = () => {
+    history.push("/home");
   };
 
   return (
@@ -69,7 +75,10 @@ const Wishlist: React.FC = () => {
           </IonList>
         ) : (
           <IonCard className="ion-text-center ion-padding">
-            <IonLabel>Your Wishlist is empty</IonLabel>
+            <IonLabel>Your Wishlist is empty.</IonLabel>
+            <IonButton expand="block" onClick={navigateToHome}>
+              Add Products
+            </IonButton>
           </IonCard>
         )}
       </div>

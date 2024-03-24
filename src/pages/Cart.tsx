@@ -142,32 +142,37 @@ const Cart: React.FC = () => {
           <IonCard>
             <IonCardContent className="ion-text-center">
               <IonLabel>Your cart is empty.</IonLabel>
+              <IonButton expand="block" onClick={() => history.push("/home")}>
+                Add Products
+              </IonButton>
             </IonCardContent>
           </IonCard>
         )}
       </IonGrid>
-      <IonCol size="12" size-md="6" className="ion-margin-auto">
-        <IonCard>
-          <IonCardContent>
-            <IonCardTitle>Total Shopping</IonCardTitle>
-            {cartItems.map((item, index) => (
-              <IonItem key={index} lines="none">
+      {cartItems.length > 0 && (
+        <IonCol size="12" size-md="6" className="ion-margin-auto">
+          <IonCard>
+            <IonCardContent>
+              <IonCardTitle>Total Shopping</IonCardTitle>
+              {cartItems.map((item, index) => (
+                <IonItem key={index} lines="none">
+                  <IonLabel>
+                    {item.title} ({item.quantity}): {item.price * item.quantity}
+                  </IonLabel>
+                </IonItem>
+              ))}
+              <IonItem lines="none">
                 <IonLabel>
-                  {item.title} ({item.quantity}): {item.price * item.quantity}
+                  <strong>Total:</strong> {totalPrice}
                 </IonLabel>
               </IonItem>
-            ))}
-            <IonItem lines="none">
-              <IonLabel>
-                <strong>Total:</strong> {totalPrice}
-              </IonLabel>
-            </IonItem>
-            <IonButton expand="block" onClick={handleCheckout}>
-              Checkout
-            </IonButton>
-          </IonCardContent>
-        </IonCard>
-      </IonCol>
+              <IonButton expand="block" onClick={handleCheckout}>
+                Checkout
+              </IonButton>
+            </IonCardContent>
+          </IonCard>
+        </IonCol>
+      )}
       <IonAlert
         isOpen={showCheckoutAlert}
         onDidDismiss={() => setShowCheckoutAlert(false)}
