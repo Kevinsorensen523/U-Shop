@@ -13,12 +13,14 @@ import {
   IonContent,
   IonIcon,
   IonRow,
+  IonToast,
 } from "@ionic/react";
 import { star, starOutline, add } from "ionicons/icons";
 import { useDispatch } from "react-redux";
 import { RootState, AppDispatch } from "../store";
 import { addItem } from "./../components/cartSlice";
 import { useFavorites } from "../components/FavoriteContext";
+import { useHistory } from "react-router-dom";
 
 export interface Product {
   id: number;
@@ -31,9 +33,16 @@ export interface Product {
 const Home: React.FC = () => {
   const { favorites, toggleFavorite: toggleFavoriteInContext } = useFavorites();
   const dispatch = useDispatch<AppDispatch>();
+  const history = useHistory();
+  const [showToast, setShowToast] = useState(false);
 
   const handleAddToCart = (product: Product) => {
     dispatch(addItem({ ...product, quantity: 1 }));
+  };
+
+  const handleAddToWishlist = (product: Product) => {
+    toggleFavoriteInContext(product);
+    setShowToast(true); // Menampilkan toast
   };
 
   const images = [
@@ -122,7 +131,7 @@ const Home: React.FC = () => {
                 <IonCardSubtitle>{product.subtitle}</IonCardSubtitle>
               </IonCardHeader>
               <IonCardContent>
-                <IonButton onClick={() => toggleFavoriteInContext(product)}>
+                <IonButton onClick={() => handleAddToWishlist(product)}>
                   <IonIcon
                     icon={
                       favorites.some((fav) => fav.id === product.id)
@@ -139,6 +148,20 @@ const Home: React.FC = () => {
           </IonCol>
         ))}
       </IonRow>
+      <IonToast
+        isOpen={showToast}
+        onDidDismiss={() => setShowToast(false)}
+        message="Produk berhasil ditambahkan ke wishlist. Cek Wishlist?"
+        duration={2000}
+        buttons={[
+          {
+            text: "Lihat",
+            handler: () => {
+              history.push("/wishlist"); // Navigasi ke halaman wishlist
+            },
+          },
+        ]}
+      />
     </IonContent>
   );
 };

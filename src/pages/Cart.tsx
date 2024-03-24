@@ -5,6 +5,7 @@ import {
   incrementQuantity,
   decrementQuantity,
   checkout,
+  removeItem,
 } from "../components/cartSlice"; // Make sure path is correct
 import {
   IonContent,
@@ -27,12 +28,12 @@ import {
 import { add, remove } from "ionicons/icons";
 import "./../App.css";
 import { addTransaction } from "../components/historySlice";
+import { useHistory } from "react-router-dom";
 
 const generateTransactionCode = () => {
   const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
   const numbers = "0123456789";
 
-  // Menambahkan tipe data `string` untuk `source`
   const randomCharacters = (source: string, length: number): string =>
     Array.from(
       { length },
@@ -46,6 +47,9 @@ const Cart: React.FC = () => {
   const [showCheckoutAlert, setShowCheckoutAlert] = useState(false);
   const dispatch = useDispatch<AppDispatch>();
   const cartItems = useSelector((state: RootState) => state.cart.items);
+  const history = useHistory();
+  const [showRemoveAlert, setShowRemoveAlert] = useState(false);
+  const [itemToRemove, setItemToRemove] = useState<number | null>(null);
 
   const totalPrice = cartItems.reduce(
     (sum, item) => sum + item.price * item.quantity,
@@ -53,35 +57,59 @@ const Cart: React.FC = () => {
   );
 
   const handleCheckout = () => {
-    // Generate transaction code
-    const transactionCode = generateTransactionCode();
-    dispatch(
-      addTransaction({
-        transactionCode,
-        totalAmount: totalPrice,
-        items: cartItems,
-      })
-    );
+    if (cartItems.length > 0) {
+      // Generate transaction code
+      const transactionCode = generateTransactionCode();
+      dispatch(
+        addTransaction({
+          transactionCode,
+          totalAmount: totalPrice,
+          items: cartItems,
+        })
+      );
 
-    // Clear cart
-    dispatch(checkout());
-
-    // Show modal or toast for success message
+      // Clear cart
+      dispatch(checkout());
+    } else {
+      // Show alert if cart is empty
+      setShowCheckoutAlert(true);
+    }
   };
 
-  const confirmCheckout = () => {
-    window.location.reload();
+  const confirmCheckout = (isEmpty: boolean) => {
+    if (isEmpty) {
+      history.push("/home");
+    } else {
+      window.location.reload();
+    }
+  };
+
+  const handleDecrementQuantity = (id: number, quantity: number) => {
+    if (quantity > 1) {
+      dispatch(decrementQuantity(id));
+    } else {
+      // Menampilkan alert konfirmasi penghapusan
+      setShowRemoveAlert(true);
+      setItemToRemove(id);
+    }
+  };
+
+  const confirmRemoveItem = (confirm: boolean) => {
+    if (confirm && itemToRemove !== null) {
+      dispatch(removeItem(itemToRemove));
+    }
+    setShowRemoveAlert(false);
+    setItemToRemove(null);
   };
 
   return (
     <IonContent>
       <IonGrid className="mt-20">
-        {" "}
-        <IonRow>
-          {cartItems.length > 0 ? (
-            cartItems.map((item, index) => (
-              <IonCol size="12" size-md="4" key={index}>
-                <IonCard color="medium">
+        {cartItems.length > 0 ? (
+          <IonRow>
+            {cartItems.map((item, index) => (
+              <IonCol size="12" size-md="6" key={index}>
+                <IonCard>
                   <IonItem lines="none">
                     <IonThumbnail slot="start">
                       <IonImg src={item.image} />
@@ -99,31 +127,33 @@ const Cart: React.FC = () => {
                       <IonIcon icon={add} />
                     </IonButton>
                     <IonButton
-                      onClick={() => dispatch(decrementQuantity(item.id))}
+                      onClick={() =>
+                        handleDecrementQuantity(item.id, item.quantity)
+                      }
                     >
                       <IonIcon icon={remove} />
                     </IonButton>
                   </IonCardContent>
                 </IonCard>
               </IonCol>
-            ))
-          ) : (
-            <IonCard>
-              <IonCardContent>
-                <IonLabel>Cart Kosong</IonLabel>
-              </IonCardContent>
-            </IonCard>
-          )}
-        </IonRow>
+            ))}
+          </IonRow>
+        ) : (
+          <IonCard>
+            <IonCardContent className="ion-text-center">
+              <IonLabel>Your cart is empty.</IonLabel>
+            </IonCardContent>
+          </IonCard>
+        )}
       </IonGrid>
-      <IonCol size="12" size-md="6">
-        <IonCard className="flex justify-center align-center md:mx-48">
+      <IonCol size="12" size-md="6" className="ion-margin-auto">
+        <IonCard>
           <IonCardContent>
-            <IonCardTitle>Total Belanjaan</IonCardTitle>
+            <IonCardTitle>Total Shopping</IonCardTitle>
             {cartItems.map((item, index) => (
               <IonItem key={index} lines="none">
                 <IonLabel>
-                  {item.title} ({item.quantity}) : {item.price * item.quantity}
+                  {item.title} ({item.quantity}): {item.price * item.quantity}
                 </IonLabel>
               </IonItem>
             ))}
@@ -141,21 +171,34 @@ const Cart: React.FC = () => {
       <IonAlert
         isOpen={showCheckoutAlert}
         onDidDismiss={() => setShowCheckoutAlert(false)}
-        cssClass="my-custom-class"
-        header={"Confirm Checkout"}
-        message={"Are you sure you want to checkout?"}
+        header={"Cart Anda Kosong"}
+        message={"Cart anda kosong, apakah anda ingin menambahkan barang?"}
         buttons={[
           {
-            text: "Yes",
-            handler: () => {
-              confirmCheckout();
-            },
+            text: "Ya",
+            handler: () => confirmCheckout(true),
           },
           {
-            text: "No",
+            text: "Tidak",
             role: "cancel",
-            cssClass: "secondary",
-            handler: (blah) => {},
+            handler: () => confirmCheckout(false),
+          },
+        ]}
+      />
+      <IonAlert
+        isOpen={showRemoveAlert}
+        onDidDismiss={() => setShowRemoveAlert(false)}
+        header={"Konfirmasi Penghapusan"}
+        message={"Apakah Anda yakin ingin menghapus produk ini dari keranjang?"}
+        buttons={[
+          {
+            text: "Ya",
+            handler: () => confirmRemoveItem(true),
+          },
+          {
+            text: "Tidak",
+            role: "cancel",
+            handler: () => confirmRemoveItem(false),
           },
         ]}
       />
