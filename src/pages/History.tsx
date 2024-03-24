@@ -7,8 +7,6 @@ import {
   IonCardHeader,
   IonCardSubtitle,
   IonCardTitle,
-  IonModal,
-  IonButton,
   IonList,
   IonItem,
   IonLabel,
@@ -34,64 +32,56 @@ const History: React.FC = () => {
   const transactions = useSelector(
     (state: RootState) => state.history.transactions as Transaction[]
   );
-  const [selectedTransaction, setSelectedTransaction] =
-    useState<Transaction | null>(null);
+  const [openedTransaction, setOpenedTransaction] = useState<string | null>(
+    null
+  );
   const [sortOrder, setSortOrder] = useState<"ascending" | "descending">(
     "ascending"
   );
   const [sortBy, setSortBy] = useState<"price" | "code">("code");
 
-  const [openedTransaction, setOpenedTransaction] = useState<string | null>(
-    null
-  );
-
-  // Sort transactions based on selected criteria
-  const sortTransactions = (transactions: Transaction[]) => {
-    return transactions.sort((a, b) => {
-      if (sortBy === "code") {
-        return sortOrder === "ascending"
-          ? a.transactionCode.localeCompare(b.transactionCode)
-          : b.transactionCode.localeCompare(a.transactionCode);
-      } else {
-        return sortOrder === "ascending"
-          ? a.totalAmount - b.totalAmount
-          : b.totalAmount - a.totalAmount;
-      }
-    });
+  const handleSortOrderChange = (e: CustomEvent) => {
+    setSortOrder(e.detail.value);
   };
 
-  const sortedTransactions = sortTransactions([...transactions]);
+  const handleSortByChange = (e: CustomEvent) => {
+    setSortBy(e.detail.value);
+  };
+
+  const sortedTransactions = [...transactions].sort((a, b) => {
+    if (sortBy === "code") {
+      return sortOrder === "ascending"
+        ? a.transactionCode.localeCompare(b.transactionCode)
+        : b.transactionCode.localeCompare(a.transactionCode);
+    } else {
+      return sortOrder === "ascending"
+        ? a.totalAmount - b.totalAmount
+        : b.totalAmount - a.totalAmount;
+    }
+  });
 
   const toggleTransaction = (transactionCode: string) => {
-    if (openedTransaction === transactionCode) {
-      setOpenedTransaction(null);
-    } else {
-      setOpenedTransaction(transactionCode);
-    }
+    setOpenedTransaction(
+      openedTransaction === transactionCode ? null : transactionCode
+    );
   };
 
   return (
     <IonContent>
       <div className="mt-20">
-        <IonSegment onIonChange={(e) => setSortOrder(e.detail.value)}>
-          <IonSegmentButton
-            value="ascending"
-            checked={sortOrder === "ascending"}
-          >
+        <IonSegment onIonChange={handleSortOrderChange} value={sortOrder}>
+          <IonSegmentButton value="ascending">
             <IonLabel>Ascending</IonLabel>
           </IonSegmentButton>
-          <IonSegmentButton
-            value="descending"
-            checked={sortOrder === "descending"}
-          >
+          <IonSegmentButton value="descending">
             <IonLabel>Descending</IonLabel>
           </IonSegmentButton>
         </IonSegment>
-        <IonSegment onIonChange={(e) => setSortBy(e.detail.value)}>
-          <IonSegmentButton value="code" checked={sortBy === "code"}>
+        <IonSegment onIonChange={handleSortByChange} value={sortBy}>
+          <IonSegmentButton value="code">
             <IonLabel>Code</IonLabel>
           </IonSegmentButton>
-          <IonSegmentButton value="price" checked={sortBy === "price"}>
+          <IonSegmentButton value="price">
             <IonLabel>Price</IonLabel>
           </IonSegmentButton>
         </IonSegment>
