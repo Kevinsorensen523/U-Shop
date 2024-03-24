@@ -15,9 +15,8 @@ import {
   IonRow,
   IonToast,
 } from "@ionic/react";
-import { star, starOutline, add } from "ionicons/icons";
+import { star, starOutline, cart } from "ionicons/icons"; // Mengganti add dengan cart untuk kejelasan
 import { useDispatch } from "react-redux";
-import { RootState, AppDispatch } from "../store";
 import { addItem } from "./../components/cartSlice";
 import { useFavorites } from "../components/FavoriteContext";
 import { useHistory } from "react-router-dom";
@@ -33,22 +32,27 @@ export interface Product {
 
 const Home: React.FC = () => {
   const { favorites, toggleFavorite: toggleFavoriteInContext } = useFavorites();
-  const dispatch = useDispatch<AppDispatch>();
+  const dispatch = useDispatch();
   const history = useHistory();
-  const [showToast, setShowToast] = useState(false);
+  const [showToastWishlist, setShowToastWishlist] = useState(false);
+  const [showToastCart, setShowToastCart] = useState(false);
   const { products, banners } = useProducts();
+  const [toastMessage, setToastMessage] = useState("");
 
   const handleAddToCart = (product: Product) => {
     dispatch(addItem({ ...product, quantity: 1 }));
+    setToastMessage(`"${product.title}" ditambahkan ke keranjang`);
+    setShowToastCart(true);
   };
 
   const handleAddToWishlist = (product: Product) => {
     toggleFavoriteInContext(product);
-    setShowToast(true); // Menampilkan toast
+    setToastMessage(`"${product.title}" ditambahkan ke wishlist`);
+    setShowToastWishlist(true);
   };
 
   return (
-    <IonContent className="carousel-container ">
+    <IonContent className="carousel-container">
       <div className="mt-20">
         <CarouselProvider
           naturalSlideWidth={50}
@@ -90,7 +94,7 @@ const Home: React.FC = () => {
                   />
                 </IonButton>
                 <IonButton onClick={() => handleAddToCart(product)}>
-                  <IonIcon icon={add} />
+                  <IonIcon icon={cart} />
                 </IonButton>
               </IonCardContent>
             </IonCard>
@@ -98,15 +102,29 @@ const Home: React.FC = () => {
         ))}
       </IonRow>
       <IonToast
-        isOpen={showToast}
-        onDidDismiss={() => setShowToast(false)}
-        message="Produk berhasil ditambahkan ke wishlist. Cek Wishlist?"
-        duration={5000}
+        isOpen={showToastWishlist}
+        onDidDismiss={() => setShowToastWishlist(false)}
+        message={toastMessage}
+        duration={2000}
         buttons={[
           {
             text: "Lihat",
             handler: () => {
-              history.push("/wishlist"); // Navigasi ke halaman wishlist
+              history.push("/wishlist");
+            },
+          },
+        ]}
+      />
+      <IonToast
+        isOpen={showToastCart}
+        onDidDismiss={() => setShowToastCart(false)}
+        message={toastMessage}
+        duration={2000}
+        buttons={[
+          {
+            text: "Lihat",
+            handler: () => {
+              history.push("/cart");
             },
           },
         ]}
