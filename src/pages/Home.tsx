@@ -18,8 +18,9 @@ import { star, starOutline, add } from "ionicons/icons";
 import { useDispatch } from "react-redux";
 import { RootState, AppDispatch } from "../store";
 import { addItem } from "./../components/cartSlice";
+import { useFavorites } from "../components/FavoriteContext";
 
-interface Product {
+export interface Product {
   id: number;
   title: string;
   subtitle: string;
@@ -27,18 +28,9 @@ interface Product {
   price: number;
 }
 
-type Favorites = Record<number, boolean>;
-
 const Home: React.FC = () => {
-  const [favorites, setFavorites] = useState<Record<number, boolean>>({});
+  const { favorites, toggleFavorite: toggleFavoriteInContext } = useFavorites();
   const dispatch = useDispatch<AppDispatch>();
-
-  const toggleFavorite = (productId: number) => {
-    setFavorites((currentFavorites) => ({
-      ...currentFavorites,
-      [productId]: !currentFavorites[productId],
-    }));
-  };
 
   const handleAddToCart = (product: Product) => {
     dispatch(addItem({ ...product, quantity: 1 }));
@@ -130,8 +122,14 @@ const Home: React.FC = () => {
                 <IonCardSubtitle>{product.subtitle}</IonCardSubtitle>
               </IonCardHeader>
               <IonCardContent>
-                <IonButton onClick={() => toggleFavorite(product.id)}>
-                  <IonIcon icon={favorites[product.id] ? star : starOutline} />
+                <IonButton onClick={() => toggleFavoriteInContext(product)}>
+                  <IonIcon
+                    icon={
+                      favorites.some((fav) => fav.id === product.id)
+                        ? star
+                        : starOutline
+                    }
+                  />
                 </IonButton>
                 <IonButton onClick={() => handleAddToCart(product)}>
                   <IonIcon icon={add} />
