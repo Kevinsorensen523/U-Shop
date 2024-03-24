@@ -1,12 +1,12 @@
 import { useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { RootState, AppDispatch } from "../store"; // Make sure path is correct
+import { RootState, AppDispatch } from "../store";
 import {
   incrementQuantity,
   decrementQuantity,
   checkout,
   removeItem,
-} from "../components/cartSlice"; // Make sure path is correct
+} from "../components/cartSlice";
 import {
   IonContent,
   IonCard,

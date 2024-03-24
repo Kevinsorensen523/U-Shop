@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, ReactNode } from "react";
-import { Product } from "./Types"; // Pastikan path sesuai
+import { Product } from "./Types";
 
 interface ProductsContextType {
   products: Product[];
