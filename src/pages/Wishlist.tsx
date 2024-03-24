@@ -12,6 +12,9 @@ import {
   IonButton,
   IonApp,
   IonContent,
+  IonCard,
+  IonImg,
+  IonThumbnail,
 } from "@ionic/react";
 import { trash, cart } from "ionicons/icons";
 import { addItem } from "./../components/cartSlice";
@@ -33,33 +36,42 @@ const Wishlist: React.FC = () => {
   return (
     <IonContent>
       <div className="mt-20">
-        <IonList>
-          {favorites.map((product) => (
-            <IonItemSliding key={product.id}>
-              <IonItemOptions side="start">
-                <IonItemOption
-                  color="success"
-                  onClick={() => handleAddToCart(product)}
-                >
-                  <IonIcon icon={cart} slot="icon-only"></IonIcon>
-                </IonItemOption>
-              </IonItemOptions>
-              <IonItem>
-                <IonLabel>
-                  {product.title} - {product.subtitle}
-                </IonLabel>
-              </IonItem>
-              <IonItemOptions side="end">
-                <IonItemOption
-                  color="danger"
-                  onClick={() => handleRemoveFromWishlist(product)}
-                >
-                  <IonIcon icon={trash} slot="icon-only"></IonIcon>
-                </IonItemOption>
-              </IonItemOptions>
-            </IonItemSliding>
-          ))}
-        </IonList>
+        {favorites.length > 0 ? (
+          <IonList>
+            {favorites.map((product) => (
+              <IonItemSliding key={product.id}>
+                <IonItemOptions side="start">
+                  <IonItemOption
+                    color="success"
+                    onClick={() => handleAddToCart(product)}
+                  >
+                    <IonIcon icon={cart} slot="icon-only"></IonIcon>
+                  </IonItemOption>
+                </IonItemOptions>
+                <IonItem lines="none">
+                  <IonThumbnail slot="start">
+                    <img src={product.image} alt={product.title} />
+                  </IonThumbnail>
+                  <IonLabel>
+                    {product.title} - {product.subtitle}
+                  </IonLabel>
+                </IonItem>
+                <IonItemOptions side="end">
+                  <IonItemOption
+                    color="danger"
+                    onClick={() => handleRemoveFromWishlist(product)}
+                  >
+                    <IonIcon icon={trash} slot="icon-only"></IonIcon>
+                  </IonItemOption>
+                </IonItemOptions>
+              </IonItemSliding>
+            ))}
+          </IonList>
+        ) : (
+          <IonCard className="ion-text-center ion-padding">
+            <IonLabel>Your Wishlist is empty</IonLabel>
+          </IonCard>
+        )}
       </div>
     </IonContent>
   );

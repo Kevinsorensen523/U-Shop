@@ -14,64 +14,92 @@ import {
   IonLabel,
   IonSegment,
   IonSegmentButton,
+  IonIcon,
 } from "@ionic/react";
+import { chevronDownOutline, chevronForwardOutline } from "ionicons/icons";
+
+interface Item {
+  title: string;
+  quantity: number;
+  price: number;
+}
+
+interface Transaction {
+  transactionCode: string;
+  totalAmount: number;
+  items: Item[];
+}
 
 const History: React.FC = () => {
   const transactions = useSelector(
-    (state: RootState) => state.history.transactions
+    (state: RootState) => state.history.transactions as Transaction[]
   );
-  const [selectedTransaction, setSelectedTransaction] = useState<any>(null);
+  const [selectedTransaction, setSelectedTransaction] =
+    useState<Transaction | null>(null);
   const [sortOrder, setSortOrder] = useState<"ascending" | "descending">(
     "ascending"
   );
   const [sortBy, setSortBy] = useState<"price" | "code">("code");
 
+  const [openedTransaction, setOpenedTransaction] = useState<string | null>(
+    null
+  );
+
   // Sort transactions based on selected criteria
-  const sortedTransactions = [...transactions].sort((a, b) => {
-    if (sortBy === "code") {
-      return sortOrder === "ascending"
-        ? a.transactionCode.localeCompare(b.transactionCode)
-        : b.transactionCode.localeCompare(a.transactionCode);
+  const sortTransactions = (transactions: Transaction[]) => {
+    return transactions.sort((a, b) => {
+      if (sortBy === "code") {
+        return sortOrder === "ascending"
+          ? a.transactionCode.localeCompare(b.transactionCode)
+          : b.transactionCode.localeCompare(a.transactionCode);
+      } else {
+        return sortOrder === "ascending"
+          ? a.totalAmount - b.totalAmount
+          : b.totalAmount - a.totalAmount;
+      }
+    });
+  };
+
+  const sortedTransactions = sortTransactions([...transactions]);
+
+  const toggleTransaction = (transactionCode: string) => {
+    if (openedTransaction === transactionCode) {
+      setOpenedTransaction(null);
     } else {
-      // Sorting by totalAmount
-      return sortOrder === "ascending"
-        ? a.totalAmount - b.totalAmount
-        : b.totalAmount - a.totalAmount;
+      setOpenedTransaction(transactionCode);
     }
-  });
+  };
 
   return (
     <IonContent>
       <div className="mt-20">
-        <IonSegment
-          value={sortOrder}
-          onIonChange={(e) =>
-            setSortOrder(e.detail.value as "ascending" | "descending")
-          }
-        >
-          <IonSegmentButton value="ascending">
+        <IonSegment onIonChange={(e) => setSortOrder(e.detail.value)}>
+          <IonSegmentButton
+            value="ascending"
+            checked={sortOrder === "ascending"}
+          >
             <IonLabel>Ascending</IonLabel>
           </IonSegmentButton>
-          <IonSegmentButton value="descending">
+          <IonSegmentButton
+            value="descending"
+            checked={sortOrder === "descending"}
+          >
             <IonLabel>Descending</IonLabel>
           </IonSegmentButton>
         </IonSegment>
-        <IonSegment
-          value={sortBy}
-          onIonChange={(e) => setSortBy(e.detail.value as "price" | "code")}
-        >
-          <IonSegmentButton value="code">
+        <IonSegment onIonChange={(e) => setSortBy(e.detail.value)}>
+          <IonSegmentButton value="code" checked={sortBy === "code"}>
             <IonLabel>Code</IonLabel>
           </IonSegmentButton>
-          <IonSegmentButton value="price">
+          <IonSegmentButton value="price" checked={sortBy === "price"}>
             <IonLabel>Price</IonLabel>
           </IonSegmentButton>
         </IonSegment>
 
-        {sortedTransactions.map((transaction, index) => (
+        {sortedTransactions.map((transaction) => (
           <IonCard
-            key={index}
-            onClick={() => setSelectedTransaction(transaction)}
+            key={transaction.transactionCode}
+            onClick={() => toggleTransaction(transaction.transactionCode)}
           >
             <IonCardHeader>
               <IonCardTitle>
@@ -80,45 +108,29 @@ const History: React.FC = () => {
               <IonCardSubtitle>
                 Total: {transaction.totalAmount}
               </IonCardSubtitle>
+              <IonIcon
+                icon={
+                  openedTransaction === transaction.transactionCode
+                    ? chevronDownOutline
+                    : chevronForwardOutline
+                }
+                slot="end"
+              />
             </IonCardHeader>
-          </IonCard>
-        ))}
-
-        <IonModal
-          isOpen={!!selectedTransaction}
-          onDidDismiss={() => setSelectedTransaction(null)}
-        >
-          <IonContent>
-            <IonList>
-              <IonItem>
-                <IonLabel>
-                  Transaction Code: {selectedTransaction?.transactionCode}
-                </IonLabel>
-              </IonItem>
-              <IonItem>
-                <IonLabel>
-                  Total Amount: {selectedTransaction?.totalAmount}
-                </IonLabel>
-              </IonItem>
-              {selectedTransaction?.items.map(
-                (item: any, itemIndex: number) => (
-                  <IonItem key={itemIndex}>
+            {openedTransaction === transaction.transactionCode && (
+              <IonList>
+                {transaction.items.map((item, index) => (
+                  <IonItem key={index}>
                     <IonLabel>
                       {item.title} - Quantity: {item.quantity} - Price:{" "}
                       {item.price}
                     </IonLabel>
                   </IonItem>
-                )
-              )}
-            </IonList>
-            <IonButton
-              expand="block"
-              onClick={() => setSelectedTransaction(null)}
-            >
-              Close
-            </IonButton>
-          </IonContent>
-        </IonModal>
+                ))}
+              </IonList>
+            )}
+          </IonCard>
+        ))}
       </div>
     </IonContent>
   );
